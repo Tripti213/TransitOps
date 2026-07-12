@@ -1,52 +1,156 @@
-import { useEffect, useState } from 'react';
-import { KPICard } from '../../components/dashboard/KPICard';
-import { FiTruck, FiUsers, FiClipboard, FiDollarSign } from 'react-icons/fi';
+import { useEffect, useState } from "react";
+import { FiTruck, FiUsers, FiClipboard, FiTool, FiActivity, FiCheckCircle, FiBarChart2 } from "react-icons/fi";
+import { KPICard } from "../../components/dashboard/KPICard";
+import SearchBar from "../../components/dashboard/SearchBar";
+import RecentTrips from "../../components/dashboard/RecentTrips";
+import VehicleStatus from "../../components/dashboard/VehicleStatusChart";
+import FleetUtilizationChart from "../../components/dashboard/FleetUtilizationChart";
 
 export default function Dashboard() {
-  const [stats, setStats] = useState({
-    totalVehicles: 0,
-    maintenanceCount: 0,
-    totalOperationalCost: 0,
-    completedTrips: 0
-  });
 
-  useEffect(() => {
-    const fetchAllStats = async () => {
-      try {
-        const [fuelRes, fleetRes, analyticsRes] = await Promise.all([
-  fetch('/api/reports/fuel'),
-  fetch('/api/reports/fleet-utilization'),
-  fetch('/api/reports/analytics')
-]);
+    const [analytics,setAnalytics]=useState<any>(null);
 
-const fuel = await fuelRes.json();
-const fleet = await fleetRes.json();
-const analytics = await analyticsRes.json();
+    const [fleet,setFleet]=useState<any>(null);
+    const [filters,setFilters]=useState({
+    type:"",
+    status:"",
+    region:""
+});
+const [search,setSearch]=useState("");
+    useEffect(()=>{
 
-if (fleet.success && analytics.success && fuel.success) {
-  setStats({
-    totalVehicles: fleet.totalVehicles,
-    maintenanceCount: fleet.inShop,
-    totalOperationalCost: analytics.finance.totalCost,
-    completedTrips: fuel.report.completedTrips
-  });
-}
-      } catch (e) {
-        console.error('Failed to load dashboard stats', e);
-      }
-    };
-    fetchAllStats();
-  }, []);
+        const load=async()=>{
 
-  return (
-    <div className="space-y-6">
-      <h2 className="text-2xl text-[var(--text-h)]">Fleet Overview</h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <KPICard title="Total Vehicles" value={stats.totalVehicles} icon={<FiTruck />} />
-        <KPICard title="Vehicles in Shop" value={stats.maintenanceCount} icon={<FiUsers />} />
-        <KPICard title="Completed Trips" value={stats.completedTrips} icon={<FiClipboard />} />
-        <KPICard title="Total Ops Cost" value={`$${stats.totalOperationalCost.toLocaleString()}`} icon={<FiDollarSign />} />
-      </div>
+            try{
+
+                const [analyticsRes,fleetRes]=await Promise.all([
+                    fetch("/api/reports/analytics"),
+                    fetch("/api/reports/fleet-utilization")
+                ]);
+
+                const analyticsData=await analyticsRes.json();
+
+                const fleetData=await fleetRes.json();
+
+                setAnalytics(analyticsData);
+
+                setFleet(fleetData);
+
+            }
+            catch(err){
+                console.log(err);
+            }
+
+        };
+
+        load();
+
+    },[filters]);
+
+    if(!analytics||!fleet){
+
+        return(
+            <div className="p-8">
+                Loading Dashboard...
+            </div>
+        );
+
+    }
+
+    return(
+
+        <div className="space-y-8">
+
+           <SearchBar
+    search={search}
+    setSearch={setSearch}
+/>
+
+
+          
+
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5">
+
+
+
+                <KPICard
+                    title="Active Vehicles"
+                    value={fleet.totalVehicles-fleet.retired}
+                    icon={<FiTruck size={24}/>}
+                />
+
+                <KPICard
+                    title="Available Vehicles"
+                    value={fleet.available}
+                    icon={<FiCheckCircle size={24}/>}
+                />
+
+
+                <KPICard
+                    title="Vehicles In Shop"
+                    value={fleet.inShop}
+                    icon={<FiTool size={24}/>}
+                />
+
+                <KPICard
+                    title="Active Trips"
+                    value={analytics.trips.active}
+                    icon={<FiClipboard size={24}/>}
+                />
+
+                <KPICard
+                    title="Completed Trips"
+                    value={analytics.trips.completed}
+                    icon={<FiActivity size={24}/>}
+                />
+                <KPICard
+                    title="Drivers Available"
+                    value={analytics.drivers.available}
+                    icon={<FiActivity size={24}/>}
+                />
+
+                <KPICard
+                    title="Drivers On Duty"
+                    value={analytics.drivers.onTrip}
+                    icon={<FiUsers size={24}/>}
+                />
+
+                <KPICard
+                    title="Fleet Utilization"
+                    value={`${fleet.fleetUtilization}%`}
+                    icon={<FiBarChart2 size={24}/>}
+                />
+
+                <KPICard
+                    title="Operational Cost"
+                    value={`₹${analytics.finance.totalCost.toLocaleString()}`}
+                    icon={<FiTruck size={24}/>}
+                />
+
+            </div>
+
+            <div className="grid grid-cols-12 gap-6">
+
+    <div className="col-span-12 xl:col-span-8">
+
+        <RecentTrips search={search}/>
+
     </div>
-  );
+
+    <div className="col-span-12 xl:col-span-4 space-y-6">
+
+        <FleetUtilizationChart
+            utilization={fleet.fleetUtilization}
+        />
+
+        <VehicleStatus fleet={fleet}/>
+
+    </div>
+
+</div>
+
+        </div>
+
+    );
+
 }
