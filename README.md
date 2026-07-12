@@ -46,6 +46,12 @@ Business rules enforced (not just hinted at in the UI):
 
 > CSV export is also implemented — it's specified in the brief's Reports & Analytics functional requirement (3.8), not in either checklist above, so it isn't a "bonus" so much as a base requirement that happens to live outside these two lists.
 
+### Sample Images
+
+![alt text](image.png)
+
+![alt text](image-1.png)
+
 ### Beyond the brief
 
 A few things we added that weren't asked for but rounded out the platform:
