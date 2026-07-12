@@ -2,7 +2,7 @@
 
 Fleet management platform for coordinating vehicles, drivers, trips, maintenance, fuel, expenses, and costs — with role-based access control (RBAC).
 
-Built for the **TransitOps: Smart Transport Operations Platform** hackathon brief — an 8-hour build to digitize the vehicle/driver/dispatch/maintenance/expense workflow that logistics teams otherwise run on spreadsheets and paper logbooks.
+Built for the **odoo** hackathon brief — an 8-hour build to digitize the vehicle/driver/dispatch/maintenance/expense workflow that logistics teams otherwise run on spreadsheets and paper logbooks.
 
 ## Tech Stack
 
