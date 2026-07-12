@@ -1,7 +1,7 @@
 import dotenv from "dotenv";
 import app from "./app.js";
 import connect_db from "./config/db.js";
-
+import "./jobs/licenseReminder.js";
 dotenv.config();
 
 const port=process.env.PORT||5000;
