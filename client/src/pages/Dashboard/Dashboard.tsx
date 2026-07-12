@@ -13,24 +13,24 @@ export default function Dashboard() {
   useEffect(() => {
     const fetchAllStats = async () => {
       try {
-        const [fleetRes, costRes, fuelRes] = await Promise.all([
-          fetch('/api/reports/fleet'),
-          fetch('/api/reports/cost'),
-          fetch('/api/reports/fuel')
-        ]);
+        const [fuelRes, fleetRes, analyticsRes] = await Promise.all([
+  fetch('/api/reports/fuel'),
+  fetch('/api/reports/fleet-utilization'),
+  fetch('/api/reports/analytics')
+]);
 
-        const fleet = await fleetRes.json();
-        const cost = await costRes.json();
-        const fuel = await fuelRes.json();
+const fuel = await fuelRes.json();
+const fleet = await fleetRes.json();
+const analytics = await analyticsRes.json();
 
-        if (fleet.success && cost.success && fuel.success) {
-          setStats({
-            totalVehicles: fleet.report.available + fleet.report.onTrip + fleet.report.inShop,
-            maintenanceCount: fleet.report.inShop,
-            totalOperationalCost: cost.report.totalOperationalCost,
-            completedTrips: fuel.report.completedTrips
-          });
-        }
+if (fleet.success && analytics.success && fuel.success) {
+  setStats({
+    totalVehicles: fleet.totalVehicles,
+    maintenanceCount: fleet.inShop,
+    totalOperationalCost: analytics.finance.totalCost,
+    completedTrips: fuel.report.completedTrips
+  });
+}
       } catch (e) {
         console.error('Failed to load dashboard stats', e);
       }
