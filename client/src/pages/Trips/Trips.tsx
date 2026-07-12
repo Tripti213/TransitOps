@@ -1,9 +1,11 @@
 import { useState, useEffect } from "react";
+import { toast } from "react-toastify";
 import { Table } from "../../components/common/Table";
 import { StatusBadge, type StatusVariant } from "../../components/common/StatusBadge";
 import { Button } from "../../components/common/Button";
 import { Modal } from "../../components/common/Modal";
 import CompleteTripForm from "../../components/forms/TripForm"; // Ensure path is corrected to lowercase 'components'
+import CreateTripForm from "../../components/forms/CreateTripForm";
 import type { Trip } from "../../types/trip";
 
 const getStatusVariant = (status: string): StatusVariant => {
@@ -16,10 +18,13 @@ const getStatusVariant = (status: string): StatusVariant => {
   return map[status] || 'neutral';
 };
 
+const formatDate = (value?: string) => (value ? new Date(value).toLocaleDateString() : "—");
+
 export default function Trips() {
   const [trips, setTrips] = useState<Trip[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isCompleteOpen, setIsCompleteOpen] = useState(false);
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [selectedTripId, setSelectedTripId] = useState<string | null>(null);
 
   // 1. Add Filter State
@@ -40,14 +45,22 @@ export default function Trips() {
   }, [filters]); // Refetches whenever filters change
 
   const handleTripAction = async (id: string, action: 'dispatch' | 'complete' | 'cancel') => {
-    await fetch(`/api/trips/${id}/${action}`, { method: 'PATCH' });
+    const res = await fetch(`/api/trips/${id}/${action}`, { method: 'PATCH' });
+    const data = await res.json();
+    if (!res.ok || !data.success) {
+      toast.error(data.message || `Failed to ${action} trip.`);
+      return;
+    }
     // Instead of reload, just toggle a state to force a re-fetch if desired
     setFilters(p => ({ ...p }));
   };
 
   return (
     <div className="space-y-6 animate-in fade-in duration-300">
-      <h2 className="text-2xl text-[var(--text-h)]">Trip Management</h2>
+      <div className="flex items-center justify-between">
+        <h2 className="text-2xl text-[var(--text-h)]">Trip Management</h2>
+        <Button onClick={() => setIsCreateOpen(true)}>+ Create Trip</Button>
+      </div>
 
       {/* 3. Search and Filter Controls */}
       <div className="flex gap-4">
@@ -75,6 +88,7 @@ export default function Trips() {
           columns={[
             { header: "Vehicle", accessor: (row: any) => row.vehicle?.registrationNumber || "N/A" },
             { header: "Driver", accessor: (row: any) => row.driver?.name || "N/A" },
+            { header: "Planned Date", accessor: (row: any) => formatDate(row.plannedDate) },
             {
               header: "Status",
               accessor: (row) => <StatusBadge label={row.status} variant={getStatusVariant(row.status)} />
@@ -90,9 +104,14 @@ export default function Trips() {
                     </>
                   )}
                   {row.status === 'Dispatched' && (
-                    <Button onClick={() => { setSelectedTripId(row._id); setIsCompleteOpen(true); }}>
-                      Complete
-                    </Button>
+                    <>
+                      <Button onClick={() => { setSelectedTripId(row._id); setIsCompleteOpen(true); }}>
+                        Complete
+                      </Button>
+                      <Button variant="secondary" onClick={() => handleTripAction(row._id, 'cancel')}>
+                        Cancel
+                      </Button>
+                    </>
                   )}
                 </div>
               )
@@ -130,6 +149,13 @@ export default function Trips() {
           />
         </Modal>
       )}
+
+      <Modal isOpen={isCreateOpen} onClose={() => setIsCreateOpen(false)} title="Create Trip">
+        <CreateTripForm
+          onSuccess={() => { setIsCreateOpen(false); setFilters(p => ({ ...p })); }}
+          onCancel={() => setIsCreateOpen(false)}
+        />
+      </Modal>
     </div>
   );
 }

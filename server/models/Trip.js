@@ -8,6 +8,7 @@ const tripSchema = new mongoose.Schema(
     driver: { type: mongoose.Schema.Types.ObjectId, ref: "Driver", required: true },
     cargoWeight: { type: Number, required: true }, // kg
     plannedDistance: { type: Number, required: true }, // km
+    plannedDate: { type: Date }, // when the trip is scheduled to happen
     actualDistance: { type: Number },
     startOdometer: { type: Number },
     endOdometer: { type: Number },

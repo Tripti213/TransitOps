@@ -141,6 +141,7 @@ export const create_trip=async(req,res)=>{
             driver,
             cargoWeight,
             plannedDistance,
+            plannedDate,
             startOdometer
         }=req.body;
 
@@ -225,6 +226,7 @@ export const create_trip=async(req,res)=>{
             driver,
             cargoWeight,
             plannedDistance,
+            plannedDate,
             startOdometer:startOdometer??vehicle_doc.odometer,
             status:"Draft"
         });
@@ -651,40 +653,47 @@ export const cancel_trip=async(req,res)=>{
             });
         }
 
-        if(trip.status!=="Dispatched"){
+        if(trip.status!=="Draft"&&trip.status!=="Dispatched"){
             await session.abortTransaction();
             session.endSession();
 
             return res.status(400).json({
                 success:false,
-                message:"Only dispatched trips can be cancelled."
+                message:"Only draft or dispatched trips can be cancelled."
             });
         }
 
-        const vehicle=await Vehicle.findById(trip.vehicle).session(session);
-
-        const driver=await Driver.findById(trip.driver).session(session);
-
-        if(!vehicle||!driver){
-            await session.abortTransaction();
-            session.endSession();
-
-            return res.status(404).json({
-                success:false,
-                message:"Vehicle or Driver not found."
-            });
-        }
+        const wasDispatched=trip.status==="Dispatched";
 
         trip.status="Cancelled";
         trip.cancelledAt=new Date();
 
-        vehicle.status="Available";
-
-        driver.status="Available";
-
         await trip.save({session});
-        await vehicle.save({session});
-        await driver.save({session});
+
+        // A draft trip never marked its vehicle/driver busy, so only a
+        // dispatched trip needs to free them back up on cancellation.
+        if(wasDispatched){
+            const vehicle=await Vehicle.findById(trip.vehicle).session(session);
+
+            const driver=await Driver.findById(trip.driver).session(session);
+
+            if(!vehicle||!driver){
+                await session.abortTransaction();
+                session.endSession();
+
+                return res.status(404).json({
+                    success:false,
+                    message:"Vehicle or Driver not found."
+                });
+            }
+
+            vehicle.status="Available";
+
+            driver.status="Available";
+
+            await vehicle.save({session});
+            await driver.save({session});
+        }
 
         await session.commitTransaction();
         session.endSession();
