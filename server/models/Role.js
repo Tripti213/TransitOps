@@ -12,10 +12,6 @@ const roleSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-import mongoose from "mongoose";
-
-
-
 const Role = mongoose.model("Role", roleSchema);
 
 export default Role;

@@ -1,7 +1,9 @@
 import express from "express";
 import cors from "cors";
+import cookieParser from "cookie-parser";
 import {not_found,error_handler} from "./middleware/errorMiddleware.js";
 
+import auth_routes from "./routes/authRoutes.js";
 import vehicle_routes from "./routes/vehicleRoutes.js";
 import driver_routes from "./routes/driverRoutes.js";
 import trip_routes from "./routes/tripRoutes.js";
@@ -12,7 +14,12 @@ import report_routes from "./routes/reportRoutes.js";
 
 const app=express();
 
-app.use(cors());
+app.use(cors({
+    origin:process.env.CLIENT_URL||"http://localhost:5173",
+    credentials:true
+}));
+
+app.use(cookieParser());
 
 app.use(express.json());
 
@@ -24,6 +31,8 @@ app.get("/",(req,res)=>{
         message:"TransitOps server working.."
     });
 });
+
+app.use("/api/auth",auth_routes);
 
 app.use("/api/vehicles",vehicle_routes);
 

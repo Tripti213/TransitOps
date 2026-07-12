@@ -1,6 +1,12 @@
+import mongoose from "mongoose";
+import bcrypt from "bcryptjs";
 import Driver from "../models/Driver.js";
+import User from "../models/User.js";
+import Role from "../models/Role.js";
 
 export const create_driver=async(req,res)=>{
+    const session=await mongoose.startSession();
+
     try{
         const{
             name,
@@ -8,10 +14,12 @@ export const create_driver=async(req,res)=>{
             licenseCategory,
             licenseExpiryDate,
             contactNumber,
-            safetyScore
+            safetyScore,
+            email,
+            password
         }=req.body;
 
-        if(!name||!licenseNumber||!licenseCategory||!licenseExpiryDate||!contactNumber){
+        if(!name||!licenseNumber||!licenseCategory||!licenseExpiryDate||!contactNumber||!email||!password){
             return res.status(400).json({
                 success:false,
                 message:"Please fill all required fields."
@@ -33,13 +41,54 @@ export const create_driver=async(req,res)=>{
     });
 }
 
-        const driver=await Driver.create({
-            name,
-            licenseNumber,
-            licenseCategory,
-            licenseExpiryDate,
-            contactNumber,
-            safetyScore
+        const user_exists=await User.findOne({email:email.toLowerCase()});
+
+        if(user_exists){
+            return res.status(409).json({
+                success:false,
+                message:"A user with this email already exists."
+            });
+        }
+
+        const driver_role=await Role.findOne({name:"Driver"});
+
+        if(!driver_role){
+            return res.status(500).json({
+                success:false,
+                message:"Driver role is not configured. Run the seed script first."
+            });
+        }
+
+        let driver;
+
+        await session.withTransaction(async()=>{
+            const hashedPassword=await bcrypt.hash(password,10);
+
+            const [newUser]=await User.create(
+                [{
+                    name,
+                    email:email.toLowerCase(),
+                    password:hashedPassword,
+                    role:driver_role._id,
+                    phone:contactNumber
+                }],
+                {session}
+            );
+
+            const [newDriver]=await Driver.create(
+                [{
+                    name,
+                    licenseNumber,
+                    licenseCategory,
+                    licenseExpiryDate,
+                    contactNumber,
+                    safetyScore,
+                    user:newUser._id
+                }],
+                {session}
+            );
+
+            driver=newDriver;
         });
 
         return res.status(201).json({
@@ -53,6 +102,9 @@ export const create_driver=async(req,res)=>{
             success:false,
             message:err.message
         });
+    }
+    finally{
+        session.endSession();
     }
 };
 
@@ -192,6 +244,10 @@ export const suspend_driver=async(req,res)=>{
         driver.status="Suspended";
 
         await driver.save();
+
+        if(driver.user){
+            await User.findByIdAndUpdate(driver.user,{isActive:false});
+        }
 
         return res.status(200).json({
             success:true,
