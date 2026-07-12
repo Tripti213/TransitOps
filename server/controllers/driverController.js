@@ -217,6 +217,50 @@ export const update_driver=async(req,res)=>{
 };
 
 
+export const delete_driver=async(req,res)=>{
+    const session=await mongoose.startSession();
+
+    try{
+        const driver=await Driver.findById(req.params.id);
+
+        if(!driver){
+            return res.status(404).json({
+                success:false,
+                message:"Driver not found."
+            });
+        }
+
+        if(driver.status==="On Trip"){
+            return res.status(400).json({
+                success:false,
+                message:"Driver is currently on a trip."
+            });
+        }
+
+        await session.withTransaction(async()=>{
+            if(driver.user){
+                await User.findByIdAndDelete(driver.user,{session});
+            }
+            await Driver.findByIdAndDelete(req.params.id,{session});
+        });
+
+        return res.status(200).json({
+            success:true,
+            message:"Driver deleted successfully."
+        });
+    }
+    catch(err){
+        return res.status(500).json({
+            success:false,
+            message:err.message
+        });
+    }
+    finally{
+        session.endSession();
+    }
+};
+
+
 export const suspend_driver=async(req,res)=>{
     try{
         const driver=await Driver.findById(req.params.id);

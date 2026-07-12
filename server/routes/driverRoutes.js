@@ -4,6 +4,7 @@ import {
     get_drivers,
     get_driver,
     update_driver,
+    delete_driver,
     suspend_driver
 } from "../controllers/driverController.js";
 import { protect } from "../middleware/authMiddleware.js";
@@ -17,7 +18,8 @@ router.route("/")
 
 router.route("/:id")
     .get(protect,get_driver)
-    .put(protect,authorize("FleetManager"),update_driver);
+    .put(protect,authorize("FleetManager"),update_driver)
+    .delete(protect,authorize("FleetManager"),delete_driver);
 
 router.patch("/:id/suspend",protect,authorize("FleetManager"),suspend_driver);
 

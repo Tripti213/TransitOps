@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
+import { toast } from "react-toastify";
 import { Table, type Column } from "../../components/common/Table";
 import { StatusBadge, type StatusVariant } from "../../components/common/StatusBadge";
 import { Modal } from "../../components/common/Modal";
 import { Button } from "../../components/common/Button";
+import { ConfirmDialog } from "../../components/common/ConfirmDialog";
 import DriverForm from "../../components/forms/DriverForm";
-import { getDrivers } from "../../services/driverService";
+import { getDrivers, deleteDriver } from "../../services/driverService";
 import type { Driver } from "../../types/driver";
 
 const statusConfig: Record<Driver["status"], { label: string; variant: StatusVariant }> = {
@@ -19,6 +21,9 @@ export default function Drivers() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isFormOpen, setIsFormOpen] = useState(false);
+  const [editingDriver, setEditingDriver] = useState<Driver | null>(null);
+  const [deletingDriver, setDeletingDriver] = useState<Driver | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     getDrivers()
@@ -30,6 +35,29 @@ export default function Drivers() {
   const handleCreated = (driver: Driver) => {
     setDrivers((prev) => [driver, ...prev]);
     setIsFormOpen(false);
+  };
+
+  const handleUpdated = (driver: Driver) => {
+    setDrivers((prev) => prev.map((d) => (d._id === driver._id ? driver : d)));
+    setEditingDriver(null);
+  };
+
+  const handleDelete = async () => {
+    if (!deletingDriver) return;
+    setDeleting(true);
+    try {
+      await deleteDriver(deletingDriver._id);
+      setDrivers((prev) => prev.filter((d) => d._id !== deletingDriver._id));
+      setDeletingDriver(null);
+    } catch (err) {
+      const message =
+        typeof err === "object" && err !== null && "response" in err
+          ? (err as { response?: { data?: { message?: string } } }).response?.data?.message
+          : undefined;
+      toast.error(message || "Failed to delete driver.");
+    } finally {
+      setDeleting(false);
+    }
   };
 
   const columns: Column<Driver>[] = [
@@ -44,6 +72,19 @@ export default function Drivers() {
       },
     },
     { header: "Safety Score", accessor: (row) => row.safetyScore, isNumeric: true },
+    {
+      header: "Actions",
+      accessor: (row) => (
+        <div className="flex gap-2">
+          <Button variant="secondary" className="px-2 py-1 text-xs" onClick={() => setEditingDriver(row)}>
+            Edit
+          </Button>
+          <Button variant="danger" className="px-2 py-1 text-xs" onClick={() => setDeletingDriver(row)}>
+            Delete
+          </Button>
+        </div>
+      ),
+    },
   ];
 
   return (
@@ -67,6 +108,23 @@ export default function Drivers() {
       <Modal isOpen={isFormOpen} onClose={() => setIsFormOpen(false)} title="Add Driver">
         <DriverForm onSuccess={handleCreated} onCancel={() => setIsFormOpen(false)} />
       </Modal>
+
+      <Modal isOpen={editingDriver !== null} onClose={() => setEditingDriver(null)} title="Edit Driver">
+        {editingDriver && (
+          <DriverForm driver={editingDriver} onSuccess={handleUpdated} onCancel={() => setEditingDriver(null)} />
+        )}
+      </Modal>
+
+      <ConfirmDialog
+        isOpen={deletingDriver !== null}
+        title="Delete Driver"
+        message={`Are you sure you want to delete ${deletingDriver?.name}? This also removes their login access. This cannot be undone.`}
+        confirmLabel="Delete"
+        danger
+        submitting={deleting}
+        onConfirm={handleDelete}
+        onCancel={() => setDeletingDriver(null)}
+      />
     </div>
   );
 }

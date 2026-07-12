@@ -25,3 +25,12 @@ export interface CreateDriverPayload {
   email: string;
   password: string;
 }
+
+export interface UpdateDriverPayload {
+  name?: string;
+  licenseNumber?: string;
+  licenseCategory?: LicenseCategory;
+  licenseExpiryDate?: string;
+  contactNumber?: string;
+  safetyScore?: number;
+}

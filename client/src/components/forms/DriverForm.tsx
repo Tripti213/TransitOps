@@ -1,10 +1,11 @@
 import { useState, type ChangeEvent, type FormEvent } from "react";
 import { Input } from "../common/Input";
 import { Button } from "../common/Button";
-import { createDriver } from "../../services/driverService";
-import type { Driver, CreateDriverPayload, LicenseCategory } from "../../types/driver";
+import { createDriver, updateDriver } from "../../services/driverService";
+import type { Driver, CreateDriverPayload, UpdateDriverPayload, LicenseCategory } from "../../types/driver";
 
 interface DriverFormProps {
+  driver?: Driver;
   onSuccess: (driver: Driver) => void;
   onCancel: () => void;
 }
@@ -15,16 +16,16 @@ const LICENSE_CATEGORIES = [
   { value: "HTV", label: "HTV" },
 ];
 
-const INITIAL_FORM = {
-  name: "",
-  licenseNumber: "",
-  licenseCategory: "",
-  licenseExpiryDate: "",
-  contactNumber: "",
-  safetyScore: "",
+const toFormState = (driver?: Driver) => ({
+  name: driver?.name ?? "",
+  licenseNumber: driver?.licenseNumber ?? "",
+  licenseCategory: driver?.licenseCategory ?? "",
+  licenseExpiryDate: driver?.licenseExpiryDate?.slice(0, 10) ?? "",
+  contactNumber: driver?.contactNumber ?? "",
+  safetyScore: driver?.safetyScore != null ? String(driver.safetyScore) : "",
   email: "",
   password: "",
-};
+});
 
 const errorMessage = (err: unknown, fallback: string) => {
   if (typeof err === "object" && err !== null && "response" in err) {
@@ -34,8 +35,9 @@ const errorMessage = (err: unknown, fallback: string) => {
   return fallback;
 };
 
-export default function DriverForm({ onSuccess, onCancel }: DriverFormProps) {
-  const [form, setForm] = useState(INITIAL_FORM);
+export default function DriverForm({ driver, onSuccess, onCancel }: DriverFormProps) {
+  const isEditing = Boolean(driver);
+  const [form, setForm] = useState(() => toFormState(driver));
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
@@ -48,20 +50,33 @@ export default function DriverForm({ onSuccess, onCancel }: DriverFormProps) {
     setError(null);
     setSubmitting(true);
     try {
-      const payload: CreateDriverPayload = {
-        name: form.name,
-        licenseNumber: form.licenseNumber,
-        licenseCategory: form.licenseCategory as LicenseCategory,
-        licenseExpiryDate: form.licenseExpiryDate,
-        contactNumber: form.contactNumber,
-        email: form.email,
-        password: form.password,
-        ...(form.safetyScore ? { safetyScore: Number(form.safetyScore) } : {}),
-      };
-      const driver = await createDriver(payload);
-      onSuccess(driver);
+      if (isEditing && driver) {
+        const payload: UpdateDriverPayload = {
+          name: form.name,
+          licenseNumber: form.licenseNumber,
+          licenseCategory: form.licenseCategory as LicenseCategory,
+          licenseExpiryDate: form.licenseExpiryDate,
+          contactNumber: form.contactNumber,
+          ...(form.safetyScore ? { safetyScore: Number(form.safetyScore) } : {}),
+        };
+        const updated = await updateDriver(driver._id, payload);
+        onSuccess(updated);
+      } else {
+        const payload: CreateDriverPayload = {
+          name: form.name,
+          licenseNumber: form.licenseNumber,
+          licenseCategory: form.licenseCategory as LicenseCategory,
+          licenseExpiryDate: form.licenseExpiryDate,
+          contactNumber: form.contactNumber,
+          email: form.email,
+          password: form.password,
+          ...(form.safetyScore ? { safetyScore: Number(form.safetyScore) } : {}),
+        };
+        const created = await createDriver(payload);
+        onSuccess(created);
+      }
     } catch (err) {
-      setError(errorMessage(err, "Failed to create driver."));
+      setError(errorMessage(err, `Failed to ${isEditing ? "update" : "create"} driver.`));
     } finally {
       setSubmitting(false);
     }
@@ -103,22 +118,24 @@ export default function DriverForm({ onSuccess, onCancel }: DriverFormProps) {
         onChange={update("safetyScore")}
       />
 
-      <div className="border-t border-[var(--border)] pt-4">
-        <p className="mb-3 text-sm text-[var(--text)]/70">
-          Login credentials — the driver signs in with these.
-        </p>
-        <div className="grid grid-cols-2 gap-4">
-          <Input label="Email" type="email" required value={form.email} onChange={update("email")} />
-          <Input
-            label="Password"
-            type="password"
-            required
-            minLength={6}
-            value={form.password}
-            onChange={update("password")}
-          />
+      {!isEditing && (
+        <div className="border-t border-[var(--border)] pt-4">
+          <p className="mb-3 text-sm text-[var(--text)]/70">
+            Login credentials — the driver signs in with these.
+          </p>
+          <div className="grid grid-cols-2 gap-4">
+            <Input label="Email" type="email" required value={form.email} onChange={update("email")} />
+            <Input
+              label="Password"
+              type="password"
+              required
+              minLength={6}
+              value={form.password}
+              onChange={update("password")}
+            />
+          </div>
         </div>
-      </div>
+      )}
 
       {error && <p className="text-sm text-[var(--status-danger)]">{error}</p>}
 
@@ -127,7 +144,7 @@ export default function DriverForm({ onSuccess, onCancel }: DriverFormProps) {
           Cancel
         </Button>
         <Button type="submit" disabled={submitting}>
-          {submitting ? "Creating..." : "Add Driver"}
+          {submitting ? "Saving..." : isEditing ? "Save Changes" : "Add Driver"}
         </Button>
       </div>
     </form>
