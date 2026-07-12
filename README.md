@@ -2,6 +2,8 @@
 
 Fleet management platform for coordinating vehicles, drivers, trips, maintenance, fuel, expenses, and costs — with role-based access control (RBAC).
 
+Built for the **TransitOps: Smart Transport Operations Platform** hackathon brief — an 8-hour build to digitize the vehicle/driver/dispatch/maintenance/expense workflow that logistics teams otherwise run on spreadsheets and paper logbooks.
+
 ## Tech Stack
 
 - **Client**: React + TypeScript, Vite, Tailwind CSS
@@ -10,12 +12,43 @@ Fleet management platform for coordinating vehicles, drivers, trips, maintenance
 
 ## Features
 
-- JWT auth with role selection at login (Fleet Manager, Driver, Safety Officer, Financial Analyst)
-- Vehicles, Drivers, Trips, Maintenance, Fuel Logs, Expenses — full CRUD
+### Core deliverables (from the brief)
+
+| Spec requirement | Status |
+|---|---|
+| Responsive web interface | ✅ |
+| Authentication with RBAC | ✅ JWT + role selection at login |
+| CRUD for Vehicles and Drivers | ✅ |
+| Trip Management with validations | ✅ cargo weight vs. capacity, driver/vehicle availability, license validity |
+| Automatic status transitions | ✅ dispatch/complete/cancel flips vehicle + driver status; maintenance flips vehicle to "In Shop" |
+| Maintenance workflow | ✅ |
+| Fuel & Expense tracking | ✅ combined with maintenance costs into running per-vehicle totals |
+| Dashboard with KPIs | ✅ active/available vehicles, trips, drivers on duty, fleet utilization |
+
+Business rules enforced (not just hinted at in the UI):
+- Vehicle registration numbers are unique
+- Retired / In Shop vehicles never appear in the dispatch pool
+- Drivers with expired licenses or Suspended status can't be assigned to trips
+- A vehicle or driver already On Trip can't be double-booked
+- Cargo weight is checked against the vehicle's max load capacity
+- Dispatch/Complete/Cancel automatically updates vehicle + driver status
+- Opening a maintenance record auto-sets the vehicle to In Shop; closing it restores Available (unless retired)
+
+### Bonus features (from the brief)
+
+| Bonus feature | Status |
+|---|---|
+| Charts and visual analytics | ✅ fleet utilization + vehicle status charts |
+| PDF export | ✅ |
+| Search, filters, and sorting | ✅ across Vehicles, Drivers, Trips, Maintenance, Expenses |
+| Dark mode | ✅ full light/warm-dark theme toggle, persisted per user |
+
+> CSV export is also implemented — it's specified in the brief's Reports & Analytics functional requirement (3.8), not in either checklist above, so it isn't a "bonus" so much as a base requirement that happens to live outside these two lists.
+
+### Beyond the brief
+
+A few things we added that weren't asked for but rounded out the platform:
 - Adding a driver also creates their login credentials, linked to their driver record
-- Maintenance automatically flips a vehicle's status (`Available` ↔ `In Shop`)
-- Expenses page combines maintenance costs + extra expenses (tolls, fines, etc.) with running totals
-- Dashboard and Reports with fleet/fuel/cost analytics, CSV export
 - Settings page: Fleet Manager can toggle which sidebar tabs are visible per role
 
 ## Project Structure
