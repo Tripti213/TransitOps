@@ -12,3 +12,8 @@ export const getAvailableVehicles = () =>
   api
     .get<{ success: boolean; count: number; vehicles: Vehicle[] }>("/vehicles/available")
     .then((res) => res.data.vehicles);
+
+export const getAllVehicles = () =>
+  api
+    .get<{ success: boolean; count: number; vehicles: Vehicle[] }>("/vehicles", { params: { limit: 1000 } })
+    .then((res) => res.data.vehicles);
