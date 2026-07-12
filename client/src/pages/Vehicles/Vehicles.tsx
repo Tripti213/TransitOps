@@ -2,12 +2,11 @@ import { useState, useEffect } from 'react';
 import { Table, type Column } from '../../components/common/Table';
 import { StatusBadge, type StatusVariant } from '../../components/common/StatusBadge';
 
-// Updated interface to match your teammate's Mongoose model exactly
 interface Vehicle {
   _id: string;
   registrationNumber: string;
-  name: string;      // Matches her model
-  type: string;      // Matches her model
+  name: string;      
+  type: string;     
   status: 'Available' | 'On Trip' | 'In Shop' | 'Retired';
   odometer: number;
   maxLoadCapacity: number;
@@ -30,23 +29,17 @@ export default function Vehicles() {
     const fetchVehicles = async () => {
       try {
         const response = await fetch('/api/vehicles');
-        if (!response.ok) {
-          throw new Error('Failed to fetch vehicle data');
-        }
         const json = await response.json();
-        
-        // Log to verify the array structure
-        console.log('API Response:', json); 
-        
-        // Set state: ensure we always pass an array to the Table[cite: 1]
-        setVehicles(Array.isArray(json) ? json : (json.data || []));
+
+        console.log('API Response (Vehicles):', json);
+
+        setVehicles(json.vehicles || []);
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'An unknown error occurred');
+        setError(err instanceof Error ? err.message : 'Error');
       } finally {
         setIsLoading(false);
       }
     };
-
     fetchVehicles();
   }, []);
 
@@ -61,15 +54,15 @@ export default function Vehicles() {
         return <StatusBadge label={config.label} variant={config.variant} />;
       },
     },
-    { 
-      header: 'Odometer', 
+    {
+      header: 'Odometer',
       accessor: (row) => `${row.odometer?.toLocaleString() || 0} km`,
-      isNumeric: true 
+      isNumeric: true
     },
-    { 
-      header: 'Load Capacity', 
+    {
+      header: 'Load Capacity',
       accessor: (row) => `${row.maxLoadCapacity?.toLocaleString() || 0} kg`,
-      isNumeric: true 
+      isNumeric: true
     },
   ];
 
@@ -81,15 +74,15 @@ export default function Vehicles() {
           <p className="text-[var(--text)]/70 text-sm mt-1">Manage fleet assets and maintenance schedules.</p>
         </div>
       </div>
-      
+
       {isLoading ? (
         <div className="py-12 text-center text-[var(--text)]/60">Loading vehicles...</div>
       ) : error ? (
         <div className="py-12 text-center text-[var(--status-danger)]">Error: {error}</div>
       ) : (
-        <Table 
-          data={vehicles} 
-          columns={columns} 
+        <Table
+          data={vehicles}
+          columns={columns}
         />
       )}
     </div>

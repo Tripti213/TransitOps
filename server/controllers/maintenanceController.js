@@ -227,3 +227,54 @@ export const complete_maintenance=async(req,res)=>{
         });
     }
 };
+
+export const get_active_maintenance=async(req,res)=>{
+    try{
+
+        const records=await Maintenance.find({
+            status:"Active"
+        })
+        .populate("vehicle")
+        .sort({
+            startDate:-1
+        });
+
+        return res.status(200).json({
+            success:true,
+            count:records.length,
+            records
+        });
+
+    }
+    catch(err){
+        return res.status(500).json({
+            success:false,
+            message:err.message
+        });
+    }
+};
+
+
+export const get_maintenance_history=async(req,res)=>{
+    try{
+
+        const records=await Maintenance.find()
+        .populate("vehicle")
+        .sort({
+            createdAt:-1
+        });
+
+        return res.status(200).json({
+            success:true,
+            count:records.length,
+            records
+        });
+
+    }
+    catch(err){
+        return res.status(500).json({
+            success:false,
+            message:err.message
+        });
+    }
+};
