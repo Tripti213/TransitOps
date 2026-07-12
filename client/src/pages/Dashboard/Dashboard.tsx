@@ -11,12 +11,7 @@ export default function Dashboard() {
     const [analytics,setAnalytics]=useState<any>(null);
 
     const [fleet,setFleet]=useState<any>(null);
-    const [filters,setFilters]=useState({
-    type:"",
-    status:"",
-    region:""
-});
-const [search,setSearch]=useState("");
+    const [search,setSearch]=useState("");
     useEffect(()=>{
 
         const load=async()=>{
@@ -45,7 +40,7 @@ const [search,setSearch]=useState("");
 
         load();
 
-    },[filters]);
+    },[]);
 
     if(!analytics||!fleet){
 
