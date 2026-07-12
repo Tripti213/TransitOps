@@ -40,6 +40,38 @@ export default function VehicleForm({ onSuccess, onCancel }: Props) {
         className="w-full border p-2"
         onChange={(e) => setFormData({...formData, name: e.target.value})}
       />
+      <input
+    placeholder="Type"
+    className="w-full border p-2"
+    onChange={(e)=>setFormData({...formData,type:e.target.value})}
+/>
+
+<input
+    type="number"
+    placeholder="Max Load Capacity"
+    className="w-full border p-2"
+    onChange={(e)=>setFormData({...formData,maxLoadCapacity:e.target.value})}
+/>
+
+<input
+    type="number"
+    placeholder="Odometer"
+    className="w-full border p-2"
+    onChange={(e)=>setFormData({...formData,odometer:e.target.value})}
+/>
+
+<input
+    type="number"
+    placeholder="Acquisition Cost"
+    className="w-full border p-2"
+    onChange={(e)=>setFormData({...formData,acquisitionCost:e.target.value})}
+/>
+
+<input
+    placeholder="Region"
+    className="w-full border p-2"
+    onChange={(e)=>setFormData({...formData,region:e.target.value})}
+/>
       <div className="flex gap-2 justify-end">
         <Button type="button" onClick={onCancel}>Cancel</Button>
         <Button type="submit">Register</Button>
