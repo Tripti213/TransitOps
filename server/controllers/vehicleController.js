@@ -54,13 +54,78 @@ export const create_vehicle=async(req,res)=>{
 
 export const get_vehicles=async(req,res)=>{
     try{
-        const vehicles=await Vehicle.find().sort({createdAt:-1});
+
+        const{
+            status,
+            type,
+            region,
+            search,
+            sort,
+            page=1,
+            limit=10
+        }=req.query;
+
+        const filter={};
+
+        if(status){
+            filter.status=status;
+        }
+
+        if(type){
+            filter.type=type;
+        }
+
+        if(region){
+            filter.region=region;
+        }
+
+        if(search){
+            filter.$or=[
+                {
+                    name:{
+                        $regex:search,
+                        $options:"i"
+                    }
+                },
+                {
+                    registrationNumber:{
+                        $regex:search,
+                        $options:"i"
+                    }
+                }
+            ];
+        }
+
+        const skip=(page-1)*limit;
+
+        let query=Vehicle.find(filter);
+
+        if(sort){
+            query=query.sort({
+                [sort]:1
+            });
+        }
+        else{
+            query=query.sort({
+                createdAt:-1
+            });
+        }
+
+        query=query.skip(skip).limit(Number(limit));
+
+        const vehicles=await query;
+
+        const total=await Vehicle.countDocuments(filter);
 
         return res.status(200).json({
             success:true,
+            total,
+            page:Number(page),
+            pages:Math.ceil(total/limit),
             count:vehicles.length,
             vehicles
         });
+
     }
     catch(err){
         return res.status(500).json({
@@ -199,6 +264,31 @@ export const retire_vehicle=async(req,res)=>{
             message:"Vehicle retired successfully.",
             vehicle
         });
+    }
+    catch(err){
+        return res.status(500).json({
+            success:false,
+            message:err.message
+        });
+    }
+};
+
+
+export const get_available_vehicles=async(req,res)=>{
+    try{
+
+        const vehicles=await Vehicle.find({
+            status:"Available"
+        }).sort({
+            registrationNumber:1
+        });
+
+        return res.status(200).json({
+            success:true,
+            count:vehicles.length,
+            vehicles
+        });
+
     }
     catch(err){
         return res.status(500).json({

@@ -6,16 +6,96 @@ import FuelLog from "../models/FuelLog.js";
 
 export const get_trips=async(req,res)=>{
     try{
-        const trips=await Trip.find()
+
+        const{
+            status,
+            vehicle,
+            driver,
+            source,
+            destination,
+            search,
+            sort,
+            page=1,
+            limit=10
+        }=req.query;
+
+        const filter={};
+
+        if(status){
+            filter.status=status;
+        }
+
+        if(vehicle){
+            filter.vehicle=vehicle;
+        }
+
+        if(driver){
+            filter.driver=driver;
+        }
+
+        if(source){
+            filter.source={
+                $regex:source,
+                $options:"i"
+            };
+        }
+
+        if(destination){
+            filter.destination={
+                $regex:destination,
+                $options:"i"
+            };
+        }
+
+        if(search){
+            filter.$or=[
+                {
+                    source:{
+                        $regex:search,
+                        $options:"i"
+                    }
+                },
+                {
+                    destination:{
+                        $regex:search,
+                        $options:"i"
+                    }
+                }
+            ];
+        }
+
+        const skip=(page-1)*Number(limit);
+
+        let query=Trip.find(filter)
         .populate("vehicle")
-        .populate("driver")
-        .sort({createdAt:-1});
+        .populate("driver");
+
+        if(sort){
+            query=query.sort({
+                [sort]:1
+            });
+        }
+        else{
+            query=query.sort({
+                createdAt:-1
+            });
+        }
+
+        query=query.skip(skip).limit(Number(limit));
+
+        const trips=await query;
+
+        const total=await Trip.countDocuments(filter);
 
         return res.status(200).json({
             success:true,
+            total,
+            page:Number(page),
+            pages:Math.ceil(total/Number(limit)),
             count:trips.length,
             trips
         });
+
     }
     catch(err){
         return res.status(500).json({
@@ -24,7 +104,6 @@ export const get_trips=async(req,res)=>{
         });
     }
 };
-
 
 export const get_trip=async(req,res)=>{
     try{
@@ -620,6 +699,46 @@ export const cancel_trip=async(req,res)=>{
         await session.abortTransaction();
         session.endSession();
 
+        return res.status(500).json({
+            success:false,
+            message:err.message
+        });
+    }
+};
+
+
+export const get_dispatch_data=async(req,res)=>{
+    try{
+
+        const today=new Date();
+
+        const [vehicles,drivers]=await Promise.all([
+
+            Vehicle.find({
+                status:"Available"
+            }).sort({
+                registrationNumber:1
+            }),
+
+            Driver.find({
+                status:"Available",
+                licenseExpiryDate:{
+                    $gte:today
+                }
+            }).sort({
+                name:1
+            })
+
+        ]);
+
+        return res.status(200).json({
+            success:true,
+            vehicles,
+            drivers
+        });
+
+    }
+    catch(err){
         return res.status(500).json({
             success:false,
             message:err.message

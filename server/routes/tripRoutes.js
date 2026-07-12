@@ -6,12 +6,15 @@ import {
     update_trip,
     dispatch_trip,
     complete_trip,
-    cancel_trip
+    cancel_trip,
+    get_dispatch_data
 } from "../controllers/tripController.js";
 
 const router=express.Router();
 
 router.route("/").get(get_trips).post(create_trip);
+
+router.get("/dispatch-data",get_dispatch_data);
 
 router.route("/:id").get(get_trip).put(update_trip)
 

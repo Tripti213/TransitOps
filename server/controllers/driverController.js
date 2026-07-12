@@ -112,10 +112,69 @@ export const create_driver=async(req,res)=>{
 
 export const get_drivers=async(req,res)=>{
     try{
-        const drivers=await Driver.find().sort({createdAt:-1});
+
+        const{
+            status,
+            licenseCategory,
+            search,
+            sort,
+            page=1,
+            limit=10
+        }=req.query;
+
+        const filter={};
+
+        if(status){
+            filter.status=status;
+        }
+
+        if(licenseCategory){
+            filter.licenseCategory=licenseCategory;
+        }
+
+        if(search){
+            filter.$or=[
+                {
+                    name:{
+                        $regex:search,
+                        $options:"i"
+                    }
+                },
+                {
+                    licenseNumber:{
+                        $regex:search,
+                        $options:"i"
+                    }
+                }
+            ];
+        }
+
+        const skip=(page-1)*Number(limit);
+
+        let query=Driver.find(filter);
+
+        if(sort){
+            query=query.sort({
+                [sort]:1
+            });
+        }
+        else{
+            query=query.sort({
+                createdAt:-1
+            });
+        }
+
+        query=query.skip(skip).limit(Number(limit));
+
+        const drivers=await query;
+
+        const total=await Driver.countDocuments(filter);
 
         return res.status(200).json({
             success:true,
+            total,
+            page:Number(page),
+            pages:Math.ceil(total/Number(limit)),
             count:drivers.length,
             drivers
         });
@@ -254,6 +313,70 @@ export const suspend_driver=async(req,res)=>{
             message:"Driver suspended successfully.",
             driver
         });
+    }
+    catch(err){
+        return res.status(500).json({
+            success:false,
+            message:err.message
+        });
+    }
+};
+
+
+export const get_available_drivers=async(req,res)=>{
+    try{
+
+        const today=new Date();
+
+        const drivers=await Driver.find({
+            status:"Available",
+            licenseExpiryDate:{
+                $gte:today
+            }
+        }).sort({
+            name:1
+        });
+
+        return res.status(200).json({
+            success:true,
+            count:drivers.length,
+            drivers
+        });
+
+    }
+    catch(err){
+        return res.status(500).json({
+            success:false,
+            message:err.message
+        });
+    }
+};
+
+
+export const get_expiring_drivers=async(req,res)=>{
+    try{
+
+        const today=new Date();
+
+        const nextThirtyDays=new Date();
+
+        nextThirtyDays.setDate(today.getDate()+30);
+
+        const drivers=await Driver.find({
+            licenseExpiryDate:{
+                $gte:today,
+                $lte:nextThirtyDays
+            }
+        }).sort({
+            licenseExpiryDate:1
+        });
+
+        return res.status(200).json({
+            success:true,
+            count:drivers.length,
+            drivers
+        });
+
     }
     catch(err){
         return res.status(500).json({
