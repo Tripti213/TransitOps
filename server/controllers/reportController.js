@@ -5,6 +5,8 @@ import Maintenance from "../models/Maintenance.js";
 import FuelLog from "../models/FuelLog.js";
 import Expense from "../models/Expense.js";
 
+import { Parser } from "json2csv";
+
 export const fuel_report=async(req,res)=>{
     try{
 
@@ -202,6 +204,89 @@ export const analytics_report=async(req,res)=>{
             }
 
         });
+
+    }
+    catch(err){
+        return res.status(500).json({
+            success:false,
+            message:err.message
+        });
+    }
+};
+
+export const export_operational_cost_csv=async(req,res)=>{
+    try{
+
+        const vehicles=await Vehicle.find();
+
+        const report=[];
+
+        for(const vehicle of vehicles){
+
+            const fuelLogs=await FuelLog.find({
+                vehicle:vehicle._id
+            });
+
+            const maintenanceLogs=await Maintenance.find({
+                vehicle:vehicle._id
+            });
+
+            const expenses=await Expense.find({
+                vehicle:vehicle._id
+            });
+
+            const fuelCost=fuelLogs.reduce(
+                (sum,log)=>sum+log.cost,
+                0
+            );
+
+            const maintenanceCost=maintenanceLogs.reduce(
+                (sum,log)=>sum+log.cost,
+                0
+            );
+
+            const expenseCost=expenses.reduce(
+                (sum,expense)=>sum+expense.amount,
+                0
+            );
+
+            report.push({
+                registrationNumber:vehicle.registrationNumber,
+                vehicle:vehicle.name,
+                fuelCost,
+                maintenanceCost,
+                expenseCost,
+                totalOperationalCost:
+                    fuelCost+
+                    maintenanceCost+
+                    expenseCost
+            });
+
+        }
+
+        const parser=new Parser({
+            fields:[
+                "registrationNumber",
+                "vehicle",
+                "fuelCost",
+                "maintenanceCost",
+                "expenseCost",
+                "totalOperationalCost"
+            ]
+        });
+
+        const csv=parser.parse(report);
+
+        res.header(
+            "Content-Type",
+            "text/csv"
+        );
+
+        res.attachment(
+            "operational-cost-report.csv"
+        );
+
+        return res.send(csv);
 
     }
     catch(err){
