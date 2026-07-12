@@ -19,14 +19,14 @@ export default function Drivers() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isFormOpen, setIsFormOpen] = useState(false);
-  
+
   const [filters, setFilters] = useState({ search: "", status: "", page: 1, sort: "createdAt" });
 
   useEffect(() => {
     setIsLoading(true);
-    getDrivers(filters) 
+    getDrivers(filters)
       .then((data) => {
-        setDrivers(data.drivers || data); 
+        setDrivers(data.drivers || data);
       })
       .catch(() => setError("Failed to load drivers."))
       .finally(() => setIsLoading(false));
@@ -63,7 +63,7 @@ export default function Drivers() {
           className="border p-2 rounded"
           onChange={(e) => setFilters(p => ({ ...p, search: e.target.value, page: 1 }))}
         />
-        <select 
+        <select
           className="border p-2 rounded"
           onChange={(e) => setFilters(p => ({ ...p, status: e.target.value, page: 1 }))}
         >
@@ -82,10 +82,23 @@ export default function Drivers() {
       )}
 
       {/* PAGINATION CONTROLS */}
-      <div className="flex gap-2">
-        <Button onClick={() => setFilters(p => ({ ...p, page: Math.max(1, p.page - 1) }))}>Prev</Button>
-        <span className="self-center">Page {filters.page}</span>
-        <Button onClick={() => setFilters(p => ({ ...p, page: p.page + 1 }))}>Next</Button>
+      <div className="flex gap-4 items-center justify-center mt-4">
+        <Button
+          disabled={filters.page === 1}
+          onClick={() => setFilters(p => ({ ...p, page: Math.max(1, p.page - 1) }))}
+        >
+          Prev
+        </Button>
+
+        <span className="text-sm font-medium">
+          Page {filters.page}
+        </span>
+
+        <Button
+          onClick={() => setFilters(p => ({ ...p, page: p.page + 1 }))}
+        >
+          Next
+        </Button>
       </div>
 
       <Modal isOpen={isFormOpen} onClose={() => setIsFormOpen(false)} title="Add Driver">

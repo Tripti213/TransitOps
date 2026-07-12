@@ -78,7 +78,7 @@ export default function Vehicles() {
           className="border p-2 rounded"
           onChange={(e) => setFilters((p) => ({ ...p, search: e.target.value, page: 1 }))}
         />
-        <select 
+        <select
           className="border p-2 rounded"
           onChange={(e) => setFilters((p) => ({ ...p, status: e.target.value, page: 1 }))}
         >
@@ -97,10 +97,23 @@ export default function Vehicles() {
         <Table data={vehicles} columns={columns} />
       )}
 
-      <div className="flex gap-2">
-        <Button onClick={() => setFilters((p) => ({ ...p, page: Math.max(1, p.page - 1) }))}>Prev</Button>
-        <span className="self-center">Page {filters.page}</span>
-        <Button onClick={() => setFilters((p) => ({ ...p, page: p.page + 1 }))}>Next</Button>
+      <div className="flex gap-4 items-center justify-center mt-4">
+        <Button
+          disabled={filters.page === 1}
+          onClick={() => setFilters(p => ({ ...p, page: Math.max(1, p.page - 1) }))}
+        >
+          Prev
+        </Button>
+
+        <span className="text-sm font-medium">
+          Page {filters.page}
+        </span>
+
+        <Button
+          onClick={() => setFilters(p => ({ ...p, page: p.page + 1 }))}
+        >
+          Next
+        </Button>
       </div>
 
       <Modal isOpen={isFormOpen} onClose={() => setIsFormOpen(false)} title="Register Vehicle">
