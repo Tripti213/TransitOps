@@ -21,6 +21,8 @@
   --status-danger-bg: rgba(168, 70, 47, 0.12);
   --status-neutral: #8a7a63; /* muted taupe — "Retired" / "Off Duty" */
   --status-neutral-bg: rgba(138, 122, 99, 0.12);
+  --status-info: #5b7b7a; /* muted teal — "On Trip" / "Dispatched" */
+  --status-info-bg: rgba(91, 123, 122, 0.12);
 
   --sans: "Inter", system-ui, "Segoe UI", Roboto, sans-serif;
   --heading: "Fraunces", Georgia, serif;
@@ -35,6 +37,39 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* Rich warm-black dark theme. Same accent family, re-tuned for contrast
+   against near-black instead of a plain gray/blue dark mode. Toggled by
+   setting data-theme="dark" on <html> (see ThemeContext). */
+[data-theme="dark"] {
+  --bg: #1a150e;
+  --canvas: #0e0b07;
+  --border: #362c1e;
+  --text: #c7b89e;
+  --text-h: #f5ead8;
+  --accent: #dc9f42;
+  --accent-bg: rgba(220, 159, 66, 0.16);
+  --accent-border: rgba(220, 159, 66, 0.45);
+  --code-bg: var(--canvas);
+  --shadow: rgba(0, 0, 0, 0.45) 0 10px 15px -3px, rgba(0, 0, 0, 0.3) 0 4px 6px -2px;
+
+  --status-available: #93b473;
+  --status-available-bg: rgba(147, 180, 115, 0.15);
+  --status-warning: #dc9f42;
+  --status-warning-bg: rgba(220, 159, 66, 0.15);
+  --status-danger: #dd7b58;
+  --status-danger-bg: rgba(221, 123, 88, 0.15);
+  --status-neutral: #a89a82;
+  --status-neutral-bg: rgba(168, 154, 130, 0.15);
+  --status-info: #7fa3a1;
+  --status-info-bg: rgba(127, 163, 161, 0.15);
+
+  color-scheme: dark;
+}
+
+html {
+  transition: background-color 0.2s ease;
 }
 
 #root {

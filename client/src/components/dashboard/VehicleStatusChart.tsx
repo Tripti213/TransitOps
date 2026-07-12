@@ -34,17 +34,17 @@ export default function VehicleStatusChart({fleet}:Props){
     ];
 
     const colors=[
-        "#22c55e",
-        "#3b82f6",
-        "#f59e0b",
-        "#ef4444"
+        "var(--status-available)",
+        "var(--status-info)",
+        "var(--status-warning)",
+        "var(--status-neutral)"
     ];
 
     return(
 
-        <div className="bg-[var(--bg)] border border-[var(--accent)]/20 rounded-lg shadow-sm p-5">
+        <div className="rounded-xl border border-[var(--border)] bg-[var(--bg)] shadow-[var(--shadow)] p-5">
 
-            <h3 className="text-lg font-semibold mb-4">
+            <h3 className="text-lg font-semibold mb-4 text-[var(--text-h)]">
                 Vehicle Status
             </h3>
 
@@ -71,9 +71,22 @@ export default function VehicleStatusChart({fleet}:Props){
                         type="category"
                         dataKey="status"
                         width={80}
+                        tick={{ fill: "var(--text)", fontSize: 13 }}
+                        axisLine={{ stroke: "var(--border)" }}
+                        tickLine={false}
                     />
 
-                    <Tooltip/>
+                    <Tooltip
+                        cursor={{ fill: "var(--accent-bg)" }}
+                        contentStyle={{
+                            background: "var(--bg)",
+                            border: "1px solid var(--border)",
+                            borderRadius: 8,
+                            color: "var(--text-h)",
+                            fontSize: 13,
+                        }}
+                        labelStyle={{ color: "var(--text-h)" }}
+                    />
 
                     <Bar
                         dataKey="value"

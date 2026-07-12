@@ -1,16 +1,18 @@
-interface Props{
-    filters:{
-        type:string;
-        status:string;
-        region:string;
-    };
-    setFilters:React.Dispatch<React.SetStateAction<any>>;
+interface Filters {
+    type: string;
+    status: string;
+    region: string;
+}
+
+interface Props {
+    filters: Filters;
+    setFilters: React.Dispatch<React.SetStateAction<Filters>>;
 }
 
 export default function Filters({
     filters,
     setFilters
-}:Props){
+}: Props){
 
     return(
 

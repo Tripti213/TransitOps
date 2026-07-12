@@ -2,6 +2,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
 import { ROLE_LABELS } from "../../constants/roles";
 import { FiLogOut, FiUser } from "react-icons/fi";
+import ThemeToggle from "../common/ThemeToggle";
 
 const PAGE_TITLES: Record<string, string> = {
   "/dashboard": "Dashboard",
@@ -32,6 +33,7 @@ export default function Navbar() {
       <h1 className="text-xl font-medium text-[var(--text-h)]">{title}</h1>
 
       <div className="flex items-center gap-4">
+        <ThemeToggle />
         {user && (
           <button
             onClick={() => navigate("/profile")}
