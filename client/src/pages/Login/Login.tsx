@@ -41,9 +41,20 @@ export default function Login() {
     <div className="flex h-screen w-full">
       <div className="hidden w-1/2 flex-col justify-between bg-[var(--border)] p-12 lg:flex">
         <div>
-          <div className="mb-6 h-10 w-10 rounded-md border border-[var(--accent-border)] bg-[var(--accent-bg)]" />
-          <h1 className="text-3xl font-medium text-[var(--text-h)]">TransitOps</h1>
-          <p className="mt-1 text-sm text-[var(--text)]/70">Smart Transport Operations Platform</p>
+          <div className="mb-6 h-14 w-14 overflow-hidden rounded-md border border-[var(--accent-border)] bg-[var(--accent-bg)]">
+            <img
+              src="https://images.unsplash.com/photo-1676748219774-8d53453b30e7?q=80&w=200&h=200&fit=crop&auto=format"
+              alt=""
+              className="h-full w-full object-cover"
+            />
+          </div>
+          <h1
+            className="font-medium tracking-tight text-[var(--text-h)]"
+            style={{ fontSize: "3.75rem", lineHeight: 1 }}
+          >
+            TransitOps
+          </h1>
+          <p className="mt-3 text-sm text-[var(--text)]/70">Smart Transport Operations Platform</p>
         </div>
 
         <div>
@@ -67,7 +78,7 @@ export default function Login() {
 
       <div className="flex w-full items-center justify-center bg-[var(--bg)] p-8 lg:w-1/2">
         <div className="w-full max-w-sm">
-          <h2 className="mb-1 text-2xl font-medium text-[var(--text-h)]">Sign in to your account</h2>
+          <h2 className="mb-1 text-lg font-normal text-[var(--text-h)]">Sign in to your account</h2>
           <p className="mb-6 text-sm text-[var(--text)]/70">Enter your credentials to continue.</p>
 
           <form onSubmit={handleSubmit} className="space-y-4">

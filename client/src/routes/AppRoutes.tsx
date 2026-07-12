@@ -13,6 +13,7 @@ import Fuel from "../pages/Fuel/Fuel";
 import Expenses from "../pages/Expenses/Expenses";
 import Reports from "../pages/Reports/Reports";
 import Profile from "../pages/Profile/Profile";
+import Settings from "../pages/Settings/Settings";
 
 export default function AppRoutes() {
   return (
@@ -39,6 +40,14 @@ export default function AppRoutes() {
           element={
             <ProtectedRoute allowedRoles={[ROLES.FLEET_MANAGER, ROLES.FINANCIAL_ANALYST]}>
               <Reports />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/settings"
+          element={
+            <ProtectedRoute allowedRoles={[ROLES.FLEET_MANAGER]}>
+              <Settings />
             </ProtectedRoute>
           }
         />
