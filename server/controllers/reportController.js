@@ -135,3 +135,69 @@ export const cost_report=async(req,res)=>{
         });
     }
 };
+
+export const operational_cost_report=async(req,res)=>{
+    try{
+
+        const vehicles=await Vehicle.find();
+
+        const report=[];
+
+        for(const vehicle of vehicles){
+
+            const fuelLogs=await FuelLog.find({
+                vehicle:vehicle._id
+            });
+
+            const maintenanceLogs=await Maintenance.find({
+                vehicle:vehicle._id
+            });
+
+            const expenses=await Expense.find({
+                vehicle:vehicle._id
+            });
+
+            const fuelCost=fuelLogs.reduce(
+                (sum,log)=>sum+log.cost,
+                0
+            );
+
+            const maintenanceCost=maintenanceLogs.reduce(
+                (sum,log)=>sum+log.cost,
+                0
+            );
+
+            const expenseCost=expenses.reduce(
+                (sum,expense)=>sum+expense.amount,
+                0
+            );
+
+            report.push({
+                vehicleId:vehicle._id,
+                registrationNumber:vehicle.registrationNumber,
+                vehicleName:vehicle.name,
+                fuelCost,
+                maintenanceCost,
+                expenseCost,
+                totalOperationalCost:
+                    fuelCost+
+                    maintenanceCost+
+                    expenseCost
+            });
+
+        }
+
+        return res.status(200).json({
+            success:true,
+            count:report.length,
+            report
+        });
+
+    }
+    catch(err){
+        return res.status(500).json({
+            success:false,
+            message:err.message
+        });
+    }
+};

@@ -3,6 +3,7 @@ import bcrypt from "bcryptjs";
 import Driver from "../models/Driver.js";
 import User from "../models/User.js";
 import Role from "../models/Role.js";
+import Trip from "../models/Trip.js";
 
 export const create_driver=async(req,res)=>{
     const session=await mongoose.startSession();
@@ -419,6 +420,59 @@ export const get_expiring_drivers=async(req,res)=>{
             success:true,
             count:drivers.length,
             drivers
+        });
+
+    }
+    catch(err){
+        return res.status(500).json({
+            success:false,
+            message:err.message
+        });
+    }
+};
+
+export const get_driver_history=async(req,res)=>{
+    try{
+
+        const driver=await Driver.findById(req.params.id);
+
+        if(!driver){
+            return res.status(404).json({
+                success:false,
+                message:"Driver not found."
+            });
+        }
+
+        const trips=await Trip.find({
+            driver:req.params.id
+        })
+        .populate("vehicle")
+        .sort({
+            createdAt:-1
+        });
+
+        const completedTrips=trips.filter(
+            trip=>trip.status==="Completed"
+        ).length;
+
+        const activeTrips=trips.filter(
+            trip=>trip.status==="Dispatched"
+        ).length;
+
+        const cancelledTrips=trips.filter(
+            trip=>trip.status==="Cancelled"
+        ).length;
+
+        return res.status(200).json({
+            success:true,
+            driver,
+            summary:{
+                totalTrips:trips.length,
+                completedTrips,
+                activeTrips,
+                cancelledTrips
+            },
+            trips
         });
 
     }

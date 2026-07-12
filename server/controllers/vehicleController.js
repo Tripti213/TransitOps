@@ -1,4 +1,8 @@
 import Vehicle from "../models/Vehicle.js";
+import Trip from "../models/Trip.js";
+import FuelLog from "../models/FuelLog.js";
+import Maintenance from "../models/Maintenance.js";
+import Expense from "../models/Expense.js";
 
 export const create_vehicle=async(req,res)=>{
     try{
@@ -287,6 +291,68 @@ export const get_available_vehicles=async(req,res)=>{
             success:true,
             count:vehicles.length,
             vehicles
+        });
+
+    }
+    catch(err){
+        return res.status(500).json({
+            success:false,
+            message:err.message
+        });
+    }
+};
+
+
+export const get_vehicle_history=async(req,res)=>{
+    try{
+
+        const vehicle=await Vehicle.findById(req.params.id);
+
+        if(!vehicle){
+            return res.status(404).json({
+                success:false,
+                message:"Vehicle not found."
+            });
+        }
+
+        const[
+            trips,
+            fuelLogs,
+            maintenanceLogs,
+            expenses
+        ]=await Promise.all([
+
+            Trip.find({
+                vehicle:req.params.id
+            }).populate("driver"),
+
+            FuelLog.find({
+                vehicle:req.params.id
+            }).sort({
+                date:-1
+            }),
+
+            Maintenance.find({
+                vehicle:req.params.id
+            }).sort({
+                startDate:-1
+            }),
+
+            Expense.find({
+                vehicle:req.params.id
+            }).sort({
+                date:-1
+            })
+
+        ]);
+
+        return res.status(200).json({
+            success:true,
+            vehicle,
+            trips,
+            fuelLogs,
+            maintenanceLogs,
+            expenses
         });
 
     }

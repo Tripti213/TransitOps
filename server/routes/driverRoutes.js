@@ -7,7 +7,8 @@ import {
     delete_driver,
     suspend_driver,
     get_available_drivers,
-    get_expiring_drivers
+    get_expiring_drivers,
+    get_driver_history
 } from "../controllers/driverController.js";
 import { protect } from "../middleware/authMiddleware.js";
 import { authorize } from "../middleware/roleMiddleware.js";
@@ -21,6 +22,8 @@ router.route("/")
 router.get("/available",get_available_drivers);
 
 router.get("/expiring",get_expiring_drivers);
+
+router.get("/:id/history",get_driver_history);
 
 router.route("/:id")
     .get(protect,get_driver)
