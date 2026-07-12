@@ -42,6 +42,7 @@ Business rules enforced (not just hinted at in the UI):
 | PDF export | ✅ |
 | Search, filters, and sorting | ✅ across Vehicles, Drivers, Trips, Maintenance, Expenses |
 | Dark mode | ✅ full light/warm-dark theme toggle, persisted per user |
+| SMS Notifications | ✅ |
 
 > CSV export is also implemented — it's specified in the brief's Reports & Analytics functional requirement (3.8), not in either checklist above, so it isn't a "bonus" so much as a base requirement that happens to live outside these two lists.
 
