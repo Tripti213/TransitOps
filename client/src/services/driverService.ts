@@ -13,7 +13,15 @@ interface DriverResponse {
   driver: Driver;
 }
 
-export const getDrivers = () => api.get<DriversResponse>("/drivers").then((res) => res.data.drivers);
+export const getDrivers = async (filters?: any) => {
+  if (filters) {
+    const query = new URLSearchParams(filters).toString();
+    const res = await fetch(`/api/drivers?${query}`);
+    if (!res.ok) throw new Error("Fetch failed");
+    return res.json();
+  }
+  return api.get<DriversResponse>("/drivers").then((res) => res.data.drivers);
+};
 
 export const createDriver = (payload: CreateDriverPayload) =>
   api.post<DriverResponse>("/drivers", payload).then((res) => res.data.driver);
