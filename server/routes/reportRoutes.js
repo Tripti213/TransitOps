@@ -1,13 +1,17 @@
 import express from "express";
-import {
-    get_dashboard,
-    get_reports
-} from "../controllers/reportController.js";
+
+import{
+    fuel_report,
+    fleet_report,
+    cost_report
+}from "../controllers/reportController.js";
 
 const router=express.Router();
 
-router.get("/dashboard",get_dashboard);
+router.get("/fuel",fuel_report);
 
-router.get("/",get_reports);
+router.get("/fleet",fleet_report);
+
+router.get("/cost",cost_report);
 
 export default router;

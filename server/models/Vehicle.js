@@ -1,5 +1,4 @@
-const mongoose = require("mongoose");
-
+import mongoose from "mongoose";
 const vehicleSchema = new mongoose.Schema(
   {
     registrationNumber: { type: String, required: true, unique: true, trim: true },
@@ -22,4 +21,6 @@ const vehicleSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-module.exports = mongoose.model("Vehicle", vehicleSchema);
+const Vehicle = mongoose.model("Vehicle", vehicleSchema);
+
+export default Vehicle;

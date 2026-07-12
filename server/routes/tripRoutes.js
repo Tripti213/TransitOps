@@ -4,7 +4,6 @@ import {
     get_trips,
     get_trip,
     update_trip,
-    delete_trip,
     dispatch_trip,
     complete_trip,
     cancel_trip
@@ -14,7 +13,7 @@ const router=express.Router();
 
 router.route("/").get(get_trips).post(create_trip);
 
-router.route("/:id").get(get_trip).put(update_trip).delete(delete_trip);
+router.route("/:id").get(get_trip).put(update_trip)
 
 router.patch("/:id/dispatch",dispatch_trip);
 

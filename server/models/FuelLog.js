@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
 const fuelLogSchema = new mongoose.Schema(
   {
@@ -11,4 +11,8 @@ const fuelLogSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-module.exports = mongoose.model("FuelLog", fuelLogSchema);
+
+
+const FuelLog = mongoose.model("FuelLog", fuelLogSchema);
+
+export default FuelLog;
