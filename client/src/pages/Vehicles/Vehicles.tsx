@@ -1,59 +1,75 @@
-import React, { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Table, type Column } from '../../components/common/Table';
 import { StatusBadge, type StatusVariant } from '../../components/common/StatusBadge';
 
-// Temporary type matching your seeded DB schema
+// Updated interface to match your teammate's Mongoose model exactly
 interface Vehicle {
   _id: string;
   registrationNumber: string;
-  make: string;
-  model: string;
-  status: 'active' | 'maintenance' | 'out_of_service';
+  name: string;      // Matches her model
+  type: string;      // Matches her model
+  status: 'Available' | 'On Trip' | 'In Shop' | 'Retired';
   odometer: number;
-  lastServiceDate: string;
+  maxLoadCapacity: number;
+  createdAt: string;
 }
 
-// Mocking the seed data until the backend API is connected
-const MOCK_VEHICLES: Vehicle[] = [
-  { _id: 'v1', registrationNumber: 'TR-1024', make: 'Ford', model: 'Transit 250', status: 'active', odometer: 45200, lastServiceDate: '2026-06-15' },
-  { _id: 'v2', registrationNumber: 'TR-1025', make: 'Mercedes', model: 'Sprinter', status: 'maintenance', odometer: 89000, lastServiceDate: '2026-07-10' },
-  { _id: 'v3', registrationNumber: 'TR-1026', make: 'Ford', model: 'Transit 250', status: 'active', odometer: 12450, lastServiceDate: '2026-05-20' },
-  { _id: 'v4', registrationNumber: 'TR-1027', make: 'Ram', model: 'ProMaster', status: 'out_of_service', odometer: 112000, lastServiceDate: '2026-01-10' },
-];
-
 const statusConfig: Record<Vehicle['status'], { label: string; variant: StatusVariant }> = {
-  active: { label: 'Available', variant: 'available' },
-  maintenance: { label: 'In Maintenance', variant: 'warning' },
-  out_of_service: { label: 'Out of Service', variant: 'danger' },
+  'Available': { label: 'Available', variant: 'available' },
+  'On Trip': { label: 'On Trip', variant: 'neutral' },
+  'In Shop': { label: 'In Shop', variant: 'warning' },
+  'Retired': { label: 'Retired', variant: 'danger' },
 };
 
 export default function Vehicles() {
-  const [vehicles] = useState<Vehicle[]>(MOCK_VEHICLES); // TODO: Replace with useFetch/SWR once backend is ready
+  const [vehicles, setVehicles] = useState<Vehicle[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchVehicles = async () => {
+      try {
+        const response = await fetch('/api/vehicles');
+        if (!response.ok) {
+          throw new Error('Failed to fetch vehicle data');
+        }
+        const json = await response.json();
+        
+        // Log to verify the array structure
+        console.log('API Response:', json); 
+        
+        // Set state: ensure we always pass an array to the Table[cite: 1]
+        setVehicles(Array.isArray(json) ? json : (json.data || []));
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'An unknown error occurred');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchVehicles();
+  }, []);
 
   const columns: Column<Vehicle>[] = [
-    { 
-      header: 'Registration', 
-      accessor: 'registrationNumber' 
-    },
-    { 
-      header: 'Vehicle', 
-      accessor: (row) => `${row.make} ${row.model}` 
-    },
+    { header: 'Registration', accessor: 'registrationNumber' },
+    { header: 'Vehicle Name', accessor: 'name' },
+    { header: 'Type', accessor: 'type' },
     {
       header: 'Status',
       accessor: (row) => {
-        const config = statusConfig[row.status];
+        const config = statusConfig[row.status] || { label: row.status, variant: 'neutral' };
         return <StatusBadge label={config.label} variant={config.variant} />;
       },
     },
     { 
       header: 'Odometer', 
-      accessor: (row) => `${row.odometer.toLocaleString()} mi`,
+      accessor: (row) => `${row.odometer?.toLocaleString() || 0} km`,
       isNumeric: true 
     },
     { 
-      header: 'Last Service', 
-      accessor: 'lastServiceDate' 
+      header: 'Load Capacity', 
+      accessor: (row) => `${row.maxLoadCapacity?.toLocaleString() || 0} kg`,
+      isNumeric: true 
     },
   ];
 
@@ -62,18 +78,20 @@ export default function Vehicles() {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl text-[var(--text-h)]">Vehicle Registry</h2>
-          <p className="text-[var(--text)]/70 text-sm mt-1">Manage fleet assets, status, and maintenance schedules.</p>
+          <p className="text-[var(--text)]/70 text-sm mt-1">Manage fleet assets and maintenance schedules.</p>
         </div>
-        <button className="bg-[var(--accent)] text-[var(--bg)] px-4 py-2 rounded-md text-sm font-medium hover:opacity-90 transition-opacity">
-          + Add Vehicle
-        </button>
       </div>
       
-      <Table 
-        data={vehicles} 
-        columns={columns} 
-        onRowClick={(row) => console.log('TODO: Open vehicle details for', row.registrationNumber)} 
-      />
+      {isLoading ? (
+        <div className="py-12 text-center text-[var(--text)]/60">Loading vehicles...</div>
+      ) : error ? (
+        <div className="py-12 text-center text-[var(--status-danger)]">Error: {error}</div>
+      ) : (
+        <Table 
+          data={vehicles} 
+          columns={columns} 
+        />
+      )}
     </div>
   );
 }

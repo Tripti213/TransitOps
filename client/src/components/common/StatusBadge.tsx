@@ -1,4 +1,4 @@
-import React from 'react';
+import { type FC } from 'react';
 
 export type StatusVariant = 'available' | 'warning' | 'danger' | 'neutral';
 
@@ -7,7 +7,7 @@ interface StatusBadgeProps {
   variant?: StatusVariant;
 }
 
-export const StatusBadge: React.FC<StatusBadgeProps> = ({ label, variant = 'neutral' }) => {
+export const StatusBadge: FC<StatusBadgeProps> = ({ label, variant = 'neutral' }) => {
   // Using color-mix to create a subtle tinted background from your solid CSS variables
   const styles = {
     available: { 
