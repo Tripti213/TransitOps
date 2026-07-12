@@ -182,3 +182,15 @@
     border-right-color: var(--border);
   }
 }
+
+button:active {
+  transform: scale(0.98); /* This makes it look like it's being pressed */
+  opacity: 0.9;
+}
+
+@media print {
+  * {
+    color: #000 !important; /* Fallback to black for text */
+    background: #fff !important; /* Fallback to white for backgrounds */
+  }
+}

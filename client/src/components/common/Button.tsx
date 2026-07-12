@@ -15,7 +15,7 @@ const VARIANT_CLASSES: Record<Variant, string> = {
 export function Button({ variant = "primary", className = "", ...rest }: ButtonProps) {
   return (
     <button
-      className={`rounded-md px-4 py-2 text-sm font-medium transition-opacity disabled:cursor-not-allowed disabled:opacity-50 ${VARIANT_CLASSES[variant]} ${className}`}
+      className={`rounded-md px-4 py-2 text-sm font-medium transition duration-150 ease-out active:scale-[0.98] active:translate-y-[1px] active:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)] disabled:cursor-not-allowed disabled:opacity-50 ${VARIANT_CLASSES[variant]} ${className}`}
       {...rest}
     />
   );
