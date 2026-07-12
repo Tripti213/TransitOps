@@ -122,20 +122,32 @@ export default function Login() {
         </div>
 
         <div className="relative z-10 max-w-md">
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-[var(--border)] bg-[var(--bg)] px-3 py-1 text-[11px] font-medium uppercase tracking-wide text-[var(--accent)]">
+            <span className="h-1.5 w-1.5 rounded-full bg-[var(--accent)]" />
+            Operations platform
+          </span>
+
           <h1
-            className="text-[2.75rem] font-medium leading-[1.05] text-[var(--text-h)]"
+            className="mt-5 text-[2.75rem] leading-[1.08] text-[var(--text-h)]"
             style={{ fontFamily: "var(--heading)" }}
           >
-            Run your fleet without the spreadsheets.
+            <span className="font-medium">Run your fleet</span>
+            <br />
+            <span className="italic font-medium text-[var(--accent)]">
+              without the spreadsheets.
+            </span>
           </h1>
           <p className="mt-4 text-sm leading-relaxed text-[var(--text)]">
             Vehicles, drivers, trips, maintenance, and cost — one operations platform,
             built to enforce the rules that keep a fleet moving safely.
           </p>
 
-          <div className="mt-10 space-y-5">
+          <div className="mt-9 space-y-2">
             {FEATURES.map(({ icon: Icon, title, desc }) => (
-              <div key={title} className="flex items-start gap-3.5">
+              <div
+                key={title}
+                className="flex items-start gap-3.5 rounded-lg border border-transparent p-2.5 transition-colors hover:border-[var(--border)] hover:bg-[var(--bg)]/60"
+              >
                 <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[var(--accent-bg)] text-[var(--accent)]">
                   <Icon size={17} />
                 </div>
@@ -143,6 +155,25 @@ export default function Login() {
                   <p className="text-sm font-medium text-[var(--text-h)]">{title}</p>
                   <p className="mt-0.5 text-[13px] leading-relaxed text-[var(--text)]/80">{desc}</p>
                 </div>
+              </div>
+            ))}
+          </div>
+
+          {/* mini dashboard preview — a taste of the real product */}
+          <div className="mt-8 flex gap-2 rounded-xl border border-[var(--border)] bg-[var(--bg)]/80 p-3 shadow-[var(--shadow)] backdrop-blur-sm">
+            {[
+              { label: "Active Trips", value: "12" },
+              { label: "Fleet Utilization", value: "68%" },
+              { label: "Drivers On Duty", value: "9" },
+            ].map((stat) => (
+              <div key={stat.label} className="flex-1 rounded-lg bg-[var(--canvas)]/60 px-3 py-2.5">
+                <p
+                  className="text-lg leading-none text-[var(--text-h)]"
+                  style={{ fontFamily: "var(--mono)" }}
+                >
+                  {stat.value}
+                </p>
+                <p className="mt-1.5 text-[11px] leading-tight text-[var(--text)]/70">{stat.label}</p>
               </div>
             ))}
           </div>
@@ -165,7 +196,10 @@ export default function Login() {
             TransitOps
           </span>
 
-          <h2 className="mt-6 text-2xl font-medium text-[var(--text-h)] lg:mt-0" style={{ fontFamily: "var(--heading)" }}>
+          <h2
+            className="mt-6 text-[1.9rem] font-medium leading-tight text-[var(--text-h)] lg:mt-0"
+            style={{ fontFamily: "var(--heading)" }}
+          >
             Welcome back
           </h2>
           <p className="mt-1.5 text-sm text-[var(--text)]/70">Sign in to your operations dashboard.</p>
