@@ -11,12 +11,12 @@ const to_public_user = (user) => ({
 
 export const login = async (req, res) => {
     try {
-        const { email, password } = req.body;
+        const { email, password, role } = req.body;
 
-        if (!email || !password) {
+        if (!email || !password || !role) {
             return res.status(400).json({
                 success: false,
-                message: "Email and password are required."
+                message: "Email, password and role are required."
             });
         }
 
@@ -35,6 +35,13 @@ export const login = async (req, res) => {
             return res.status(401).json({
                 success: false,
                 message: "Invalid email or password."
+            });
+        }
+
+        if (user.role.name !== role) {
+            return res.status(403).json({
+                success: false,
+                message: "This account is not registered under the selected role."
             });
         }
 
