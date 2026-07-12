@@ -11,6 +11,8 @@ const router=express.Router();
 
 router.route("/").get(get_drivers).post(create_driver);
 
-router.route("/:id").get(get_driver).put(update_driver).delete(suspend_driver);
+router.route("/:id").get(get_driver).put(update_driver);
+
+router.patch("/:id/suspend",suspend_driver);
 
 export default router;
