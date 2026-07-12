@@ -39,43 +39,60 @@ export default function Login() {
 
   return (
     <div className="flex h-screen w-full">
-      <div className="hidden w-1/2 flex-col justify-between bg-[var(--border)] p-12 lg:flex">
-        <div>
-          <div className="mb-6 h-14 w-14 overflow-hidden rounded-md border border-[var(--accent-border)] bg-[var(--accent-bg)]">
-            <img
-              src="https://images.unsplash.com/photo-1676748219774-8d53453b30e7?q=80&w=200&h=200&fit=crop&auto=format"
-              alt=""
-              className="h-full w-full object-cover"
-            />
+      {/* LEFT PANEL — minimal, clear photo, light hover focus */}
+      <div className="group relative hidden w-1/2 overflow-hidden bg-[var(--border)] lg:block">
+        {/* background photo — barely blurred, sharpens fully on hover */}
+        <div
+          className="absolute inset-0 scale-105 bg-cover bg-center blur-[3px] transition-all duration-500 ease-out group-hover:scale-100 group-hover:blur-0"
+          style={{
+            backgroundImage:
+              "url('https://images.unsplash.com/photo-1519003722824-194d4455a60c?q=80&w=1400&auto=format&fit=crop')",
+          }}
+        />
+        {/* gradient only where text sits, so the photo stays visible up top */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/10 to-transparent" />
+
+        <div className="relative z-10 flex h-full flex-col justify-between p-12">
+          {/* logo mark */}
+          <div className="flex h-12 w-12 items-center justify-center rounded-md border border-white/25 bg-white/10 backdrop-blur-sm">
+            <svg viewBox="0 0 24 24" className="h-6 w-6 text-white" fill="none">
+              <path d="M3 16V6a1 1 0 0 1 1-1h9a1 1 0 0 1 1 1v10" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+              <path
+                d="M14 10h4.3a1 1 0 0 1 .86.49l2.34 3.9a1 1 0 0 1 .14.51V16a1 1 0 0 1-1 1H14"
+                stroke="currentColor"
+                strokeWidth="1.6"
+                strokeLinejoin="round"
+              />
+              <circle cx="7" cy="17.5" r="1.75" stroke="currentColor" strokeWidth="1.6" />
+              <circle cx="17.5" cy="17.5" r="1.75" stroke="currentColor" strokeWidth="1.6" />
+            </svg>
           </div>
-          <h1
-            className="font-medium tracking-tight text-[var(--text-h)]"
-            style={{ fontSize: "3.75rem", lineHeight: 1 }}
-          >
-            TransitOps
-          </h1>
-          <p className="mt-3 text-sm text-[var(--text)]/70">Smart Transport Operations Platform</p>
-        </div>
 
-        <div>
-          <p className="mb-8 text-sm leading-relaxed text-[var(--text)]/80">
-            TransitOps helps fleet managers, drivers, safety officers, and financial analysts
-            coordinate vehicles, trips, maintenance, and costs from one connected platform.
-          </p>
-          <h2 className="mb-4 text-lg text-[var(--text-h)]">One login, four roles</h2>
-          <ul className="space-y-3 text-sm text-[var(--text)]">
-            {Object.values(ROLES).map((r) => (
-              <li key={r} className="flex items-center gap-2">
-                <span className="h-1.5 w-1.5 rounded-full bg-[var(--accent)]" />
-                {ROLE_LABELS[r]}
-              </li>
-            ))}
-          </ul>
-        </div>
+          {/* bold, minimal asymmetric wordmark */}
+          <div>
+            <h1 className="font-medium leading-[0.85] text-white">
+              <span className="block text-[4rem]">Transit</span>
+              <span className="ml-12 block text-[4.75rem] italic text-[var(--accent)]">Ops</span>
+            </h1>
+            <p className="mt-4 max-w-xs text-sm leading-relaxed text-white/70">
+              Fleet, trips, and cost — coordinated in one place.
+            </p>
 
-        <p className="text-xs text-[var(--text)]/50">TransitOps © 2026</p>
+            <ul className="mt-10 space-y-2.5 text-sm text-white/80">
+              {Object.values(ROLES).map((r) => (
+                <li key={r} className="flex items-center gap-2">
+                  <span className="h-1 w-1 rounded-full bg-[var(--accent)]" />
+                  {ROLE_LABELS[r]}
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <p className="text-xs text-white/40">TransitOps © 2026</p>
+        </div>
       </div>
 
+      {/* RIGHT PANEL — form (unchanged) */}
       <div className="flex w-full items-center justify-center bg-[var(--bg)] p-8 lg:w-1/2">
         <div className="w-full max-w-sm">
           <h2 className="mb-1 text-lg font-normal text-[var(--text-h)]">Sign in to your account</h2>
