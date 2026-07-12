@@ -5,7 +5,7 @@ import SearchBar from "../../components/dashboard/SearchBar";
 import RecentTrips from "../../components/dashboard/RecentTrips";
 import VehicleStatus from "../../components/dashboard/VehicleStatusChart";
 import FleetUtilizationChart from "../../components/dashboard/FleetUtilizationChart";
-
+import api from "../../services/api";
 export default function Dashboard() {
 
     const [analytics,setAnalytics]=useState<any>(null);
@@ -18,14 +18,13 @@ export default function Dashboard() {
 
             try{
 
-                const [analyticsRes,fleetRes]=await Promise.all([
-                    fetch("/api/reports/analytics"),
-                    fetch("/api/reports/fleet-utilization")
-                ]);
+                const [analyticsRes, fleetRes] = await Promise.all([
+    api.get("/reports/analytics"),
+    api.get("/reports/fleet-utilization")
+]);
 
-                const analyticsData=await analyticsRes.json();
-
-                const fleetData=await fleetRes.json();
+const analyticsData = analyticsRes.data;
+const fleetData = fleetRes.data;
 
                 setAnalytics(analyticsData);
 
