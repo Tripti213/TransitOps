@@ -7,19 +7,19 @@
  *
  * Run: node seed/seed.js   (from the server/ directory, with MONGO_URI set)
  */
-require("dotenv").config();
-const mongoose = require("mongoose");
-const bcrypt = require("bcryptjs");
-const connectDB = require("../config/db");
+import "dotenv/config";
+import mongoose from "mongoose";
+import bcrypt from "bcryptjs";
+import connectDB from "../config/db.js";
 
-const Role = require("../models/Role");
-const User = require("../models/User");
-const Vehicle = require("../models/Vehicle");
-const Driver = require("../models/Driver");
-const Trip = require("../models/Trip");
-const Maintenance = require("../models/Maintenance");
-const FuelLog = require("../models/FuelLog");
-const Expense = require("../models/Expense");
+import Role from "../models/Role.js";
+import User from "../models/User.js";
+import Vehicle from "../models/Vehicle.js";
+import Driver from "../models/Driver.js";
+import Trip from "../models/Trip.js";
+import Maintenance from "../models/Maintenance.js";
+import FuelLog from "../models/FuelLog.js";
+import Expense from "../models/Expense.js";
 
 const daysFromNow = (n) => new Date(Date.now() + n * 24 * 60 * 60 * 1000);
 const daysAgo = (n) => daysFromNow(-n);
