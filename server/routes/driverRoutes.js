@@ -8,8 +8,9 @@ import {
     suspend_driver,
     get_available_drivers,
     get_expiring_drivers,
-    get_driver_history
+    get_driver_history,
 } from "../controllers/driverController.js";
+import { send_license_reminders } from "../controllers/notificationController.js";
 import { protect } from "../middleware/authMiddleware.js";
 import { authorize } from "../middleware/roleMiddleware.js";
 
@@ -23,12 +24,19 @@ router.get("/available",get_available_drivers);
 
 router.get("/expiring",get_expiring_drivers);
 
+router.post(
+    "/license-reminders",
+    send_license_reminders
+);
+
 router.get("/:id/history",get_driver_history);
 
 router.route("/:id")
     .get(protect,get_driver)
     .put(protect,authorize("FleetManager"),update_driver)
     .delete(protect,authorize("FleetManager"),delete_driver);
+
+
 
 
 
