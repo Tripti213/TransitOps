@@ -8,14 +8,27 @@ interface KPICardProps {
 }
 
 export const KPICard: FC<KPICardProps> = ({ title, value, subtext, icon }) => (
-  <div className="bg-[var(--bg)] p-6 rounded-lg border border-[var(--accent)]/20 shadow-sm">
-    <div className="flex items-center justify-between">
+  <div className="group relative overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--bg)] p-5 shadow-[var(--shadow)] transition-all duration-200 hover:-translate-y-0.5 hover:border-[var(--accent-border)]">
+    <div
+      aria-hidden
+      className="absolute inset-x-0 top-0 h-[3px] scale-x-0 bg-[var(--accent)] transition-transform duration-200 group-hover:scale-x-100"
+    />
+    <div className="flex items-start justify-between">
       <div>
-        <p className="text-sm text-[var(--text)]/70">{title}</p>
-        <h3 className="text-2xl font-semibold mt-1 text-[var(--text-h)]">{value}</h3>
-        {subtext && <p className="text-xs text-[var(--accent)] mt-2">{subtext}</p>}
+        <p className="text-sm font-medium text-[var(--text)]/70">{title}</p>
+        <h3
+          className="mt-2 text-[28px] leading-none font-semibold text-[var(--text-h)]"
+          style={{ fontFamily: 'var(--mono)', fontWeight: 500 }}
+        >
+          {value}
+        </h3>
+        {subtext && (
+          <p className="mt-2.5 text-xs font-medium text-[var(--accent)]">{subtext}</p>
+        )}
       </div>
-      <div className="text-[var(--accent)] opacity-80">{icon}</div>
+      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-[var(--accent-bg)] text-[var(--accent)]">
+        {icon}
+      </div>
     </div>
   </div>
 );

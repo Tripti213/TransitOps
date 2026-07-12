@@ -1,6 +1,6 @@
 import { type FC } from 'react';
 
-export type StatusVariant = 'available' | 'warning' | 'danger' | 'neutral';
+export type StatusVariant = 'available' | 'warning' | 'danger' | 'neutral' | 'info';
 
 interface StatusBadgeProps {
   label: string;
@@ -29,6 +29,11 @@ export const StatusBadge: FC<StatusBadgeProps> = ({ label, variant = 'neutral' }
       backgroundColor: 'color-mix(in srgb, var(--status-neutral) 15%, transparent)', 
       color: 'var(--status-neutral)', 
       borderColor: 'color-mix(in srgb, var(--status-neutral) 30%, transparent)' 
+    },
+    info: {
+      backgroundColor: 'color-mix(in srgb, var(--status-info) 15%, transparent)',
+      color: 'var(--status-info)',
+      borderColor: 'color-mix(in srgb, var(--status-info) 30%, transparent)'
     }
   };
 

@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useAuth } from "../../hooks/useAuth";
 import { ROLES, ROLE_LABELS, type RoleName } from "../../constants/roles";
+import ThemeToggle from "../../components/common/ThemeToggle";
 
 const fieldClasses =
   "w-full rounded-md border border-[var(--border)] bg-transparent px-3 py-2 text-sm text-[var(--text-h)] outline-none focus:border-[var(--accent)]";
@@ -93,7 +94,10 @@ export default function Login() {
       </div>
 
       {/* RIGHT PANEL — form (unchanged) */}
-      <div className="flex w-full items-center justify-center bg-[var(--bg)] p-8 lg:w-1/2">
+      <div className="relative flex w-full items-center justify-center bg-[var(--bg)] p-8 lg:w-1/2">
+        <div className="absolute right-6 top-6">
+          <ThemeToggle />
+        </div>
         <div className="w-full max-w-sm">
           <h2 className="mb-1 text-lg font-normal text-[var(--text-h)]">Sign in to your account</h2>
           <p className="mb-6 text-sm text-[var(--text)]/70">Enter your credentials to continue.</p>

@@ -15,7 +15,7 @@ export default function FleetUtilizationChart({
 
     return(
 
-        <div className="bg-[var(--bg)] border border-[var(--accent)]/20 rounded-lg shadow-sm p-5">
+        <div className="rounded-xl border border-[var(--border)] bg-[var(--bg)] shadow-[var(--shadow)] p-5">
 
             <h3 className="text-lg font-semibold text-[var(--text-h)] mb-4">
                 Fleet Utilization
@@ -46,9 +46,9 @@ export default function FleetUtilizationChart({
 
                     <RadialBar
     dataKey="value"
-    fill="#C58A2C"
+    fill="var(--accent)"
     background={{
-        fill:"#CFC7BA"
+        fill:"var(--border)"
     }}
     cornerRadius={12}
 />
@@ -58,7 +58,8 @@ export default function FleetUtilizationChart({
                         y="50%"
                         textAnchor="middle"
                         dominantBaseline="middle"
-                        className="fill-current text-3xl font-bold"
+                        className="text-3xl font-bold"
+                        style={{ fill: "var(--text-h)" }}
                     >
                         {utilization}%
                     </text>
