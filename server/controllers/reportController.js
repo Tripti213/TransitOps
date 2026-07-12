@@ -51,8 +51,10 @@ export const fuel_report=async(req,res)=>{
 };
 
 
-export const fleet_report=async(req,res)=>{
+export const fleet_utilization_report=async(req,res)=>{
     try{
+
+        const totalVehicles=await Vehicle.countDocuments();
 
         const available=await Vehicle.countDocuments({
             status:"Available"
@@ -70,14 +72,21 @@ export const fleet_report=async(req,res)=>{
             status:"Retired"
         });
 
+        const activeFleet=totalVehicles-retired;
+
+        const fleetUtilization=
+            activeFleet===0
+            ?0
+            :Number(((onTrip/activeFleet)*100).toFixed(2));
+
         return res.status(200).json({
             success:true,
-            report:{
-                available,
-                onTrip,
-                inShop,
-                retired
-            }
+            totalVehicles,
+            available,
+            onTrip,
+            inShop,
+            retired,
+            fleetUtilization
         });
 
     }
@@ -89,108 +98,109 @@ export const fleet_report=async(req,res)=>{
     }
 };
 
-
-export const cost_report=async(req,res)=>{
+export const analytics_report=async(req,res)=>{
     try{
 
-        const maintenance=await Maintenance.find();
+        const[
+            totalVehicles,
+            availableVehicles,
+            onTripVehicles,
+            inShopVehicles,
+            retiredVehicles,
 
-        const fuel=await FuelLog.find();
+            totalDrivers,
+            availableDrivers,
+            onTripDrivers,
+            suspendedDrivers,
 
-        const expenses=await Expense.find();
+            activeTrips,
+            completedTrips,
+            cancelledTrips,
 
-        const maintenanceCost=maintenance.reduce(
-            (sum,item)=>sum+item.cost,
+            activeMaintenance,
+
+            fuelLogs,
+            maintenanceLogs,
+            expenses
+
+        ]=await Promise.all([
+
+            Vehicle.countDocuments(),
+            Vehicle.countDocuments({status:"Available"}),
+            Vehicle.countDocuments({status:"On Trip"}),
+            Vehicle.countDocuments({status:"In Shop"}),
+            Vehicle.countDocuments({status:"Retired"}),
+
+            Driver.countDocuments(),
+            Driver.countDocuments({status:"Available"}),
+            Driver.countDocuments({status:"On Trip"}),
+            Driver.countDocuments({status:"Suspended"}),
+
+            Trip.countDocuments({status:"Dispatched"}),
+            Trip.countDocuments({status:"Completed"}),
+            Trip.countDocuments({status:"Cancelled"}),
+
+            Maintenance.countDocuments({status:"Active"}),
+
+            FuelLog.find(),
+            Maintenance.find(),
+            Expense.find()
+
+        ]);
+
+        const fuelCost=fuelLogs.reduce(
+            (sum,log)=>sum+log.cost,
             0
         );
 
-        const fuelCost=fuel.reduce(
-            (sum,item)=>sum+item.cost,
+        const maintenanceCost=maintenanceLogs.reduce(
+            (sum,log)=>sum+log.cost,
             0
         );
 
         const expenseCost=expenses.reduce(
-            (sum,item)=>sum+item.amount,
+            (sum,expense)=>sum+expense.amount,
             0
         );
 
         return res.status(200).json({
             success:true,
-            report:{
-                maintenanceCost,
-                fuelCost,
-                expenseCost,
-                totalOperationalCost:
-                maintenanceCost+
-                fuelCost+
-                expenseCost
-            }
-        });
 
-    }
-    catch(err){
-        return res.status(500).json({
-            success:false,
-            message:err.message
-        });
-    }
-};
+            vehicles:{
+                total:totalVehicles,
+                available:availableVehicles,
+                onTrip:onTripVehicles,
+                inShop:inShopVehicles,
+                retired:retiredVehicles
+            },
 
-export const operational_cost_report=async(req,res)=>{
-    try{
+            drivers:{
+                total:totalDrivers,
+                available:availableDrivers,
+                onTrip:onTripDrivers,
+                suspended:suspendedDrivers
+            },
 
-        const vehicles=await Vehicle.find();
+            trips:{
+                active:activeTrips,
+                completed:completedTrips,
+                cancelled:cancelledTrips
+            },
 
-        const report=[];
+            maintenance:{
+                active:activeMaintenance
+            },
 
-        for(const vehicle of vehicles){
-
-            const fuelLogs=await FuelLog.find({
-                vehicle:vehicle._id
-            });
-
-            const maintenanceLogs=await Maintenance.find({
-                vehicle:vehicle._id
-            });
-
-            const expenses=await Expense.find({
-                vehicle:vehicle._id
-            });
-
-            const fuelCost=fuelLogs.reduce(
-                (sum,log)=>sum+log.cost,
-                0
-            );
-
-            const maintenanceCost=maintenanceLogs.reduce(
-                (sum,log)=>sum+log.cost,
-                0
-            );
-
-            const expenseCost=expenses.reduce(
-                (sum,expense)=>sum+expense.amount,
-                0
-            );
-
-            report.push({
-                vehicleId:vehicle._id,
-                registrationNumber:vehicle.registrationNumber,
-                vehicleName:vehicle.name,
+            finance:{
                 fuelCost,
                 maintenanceCost,
                 expenseCost,
-                totalOperationalCost:
+                totalCost:
                     fuelCost+
                     maintenanceCost+
                     expenseCost
-            });
+            }
 
-        }
-
-        return res.status(200).json({
-            success:true,
-            count:report.length,
-            report
         });
 
     }
